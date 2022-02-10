@@ -1,16 +1,19 @@
+# elenode
+
 This docker image has the ability to automatically sync up and down a backup of the Cardano DB. For now just through an S3 bucket, but looking into using the official weekly backups from IOHK.
 
-Components:
+## Components:
 
-ssh daemon
-exposed cardano-node via socat
-support for Nami custom node via payment tx api
-cardobot pre-installed
-automatic backups to S3 for wallets and DB
-dbsync w/ connection to remote postgres db
+- ssh daemon
+- exposed cardano-node via socat
+- support for Nami custom node via payment tx api
+- cardobot pre-installed
+- automatic backups to S3 for wallets and DB
+- dbsync w/ connection to remote postgres db
 
-Optional Variables:
-
+## Environment Variables:
+### Optional Variables:
+```
   - AWS_SYNC_ENABLED (whether or not to sync DB and wallets to S3)
     true/false
     
@@ -31,17 +34,17 @@ Optional Variables:
 
   - WALLET_BUCKET_NAME (name of the S3 bucket to backup wallets to)
     string
-    
-SSH Variables (required if you need to log into the container remotely)
-
+```  
+### SSH Variables (required if you need to log into the container remotely)
+```
   - ROOT_SSH_KEY (only needed if you need to ssh into the server directly as root, illadvised)
     string
     
   - ADMIN_SSH_KEY (needed to ssh directly into the server to run cardobot commands)
     string
-    
-AWS Variables (required if using private S3 buckets):
-
+```
+### AWS Variables (required if using private S3 buckets):
+```
   - AWS_ACCESS_KEY_ID (IAM user's access key for your account)
     string
 
@@ -50,9 +53,9 @@ AWS Variables (required if using private S3 buckets):
 
   - AWS_DEFAULT_REGION (region your S3 buckets live in)
     string
-    
-Postgres Variables (required if using db sync)
-
+```
+### Postgres Variables (required if using db sync)
+```
   - POSTGRES_HOST (hostname or IP of your postgres DB)
     string
 
@@ -67,3 +70,4 @@ Postgres Variables (required if using db sync)
 
   - POSTGRES_PASS (password for the postgres user, recommend using secrets manager variables if using ECS)
     string
+```
