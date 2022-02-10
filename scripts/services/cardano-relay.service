@@ -1,0 +1,23 @@
+# The Cardano node service (part of systemd)
+# file: /etc/systemd/system/cardano-relay.service 
+
+[Unit]
+Description     = Cardano relay node service
+Wants           = network-online.target
+Wants           = prometheus-to-cloudwatch.target
+After           = network-online.target 
+
+[Service]
+User            = ${USERNAME}
+Type            = simple
+WorkingDirectory= ${NODE_HOME}
+ExecStart       = /bin/bash -c '${NODE_HOME}/scripts/start-relay.sh'
+KillSignal=SIGINT
+TimeoutStopSec=2
+LimitNOFILE=32768
+Restart=always
+RestartSec=5
+SyslogIdentifier=cardano-relay
+
+[Install]
+WantedBy	= multi-user.target

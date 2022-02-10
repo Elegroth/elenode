@@ -1,0 +1,130 @@
+{
+  "agent": {
+    "metrics_collection_interval": 30,
+    "run_as_user": "cwagent",
+    "debug": false
+  },
+  "metrics": {
+    "append_dimensions": {
+      "AutoScalingGroupName": "${aws:AutoScalingGroupName}",
+      "ImageId": "${aws:ImageId}",
+      "InstanceId": "${aws:InstanceId}",
+      "InstanceType": "${aws:InstanceType}"
+    },
+    "metrics_collected": {
+      "ethtool": {
+        "interface_include": [
+          "eth1"
+        ],
+        "metrics_include": [
+          "rx_packets",
+          "tx_packets",
+          "bw_in_allowance_exceeded",
+          "bw_out_allowance_exceeded",
+          "conntrack_allowance_exceeded",
+          "linklocal_allowance_exceeded",
+          "pps_allowance_exceeded"
+        ]
+      },
+      "cpu": {
+        "measurement": [
+          "cpu_usage_idle",
+          "cpu_usage_iowait",
+          "cpu_usage_user",
+          "cpu_usage_system"
+        ],
+        "metrics_collection_interval": 30,
+        "resources": [
+          "*"
+        ],
+        "totalcpu": false
+      },
+      "disk": {
+        "measurement": [
+          "used_percent",
+          "inodes_free"
+        ],
+        "metrics_collection_interval": 30,
+        "resources": [
+          "*"
+        ]
+      },
+      "diskio": {
+        "measurement": [
+          "io_time",
+          "write_bytes",
+          "read_bytes",
+          "writes",
+          "reads"
+        ],
+        "metrics_collection_interval": 30,
+        "resources": [
+          "*"
+        ]
+      },
+      "mem": {
+        "measurement": [
+          "mem_used_percent"
+        ],
+        "metrics_collection_interval": 30
+      },
+      "netstat": {
+        "measurement": [
+          "tcp_established",
+          "tcp_time_wait"
+        ],
+        "metrics_collection_interval": 30
+      },
+      "swap": {
+        "measurement": [
+          "swap_used_percent"
+        ],
+        "metrics_collection_interval": 30
+      }
+    }
+  },
+  "logs": {
+    "logs_collected": {
+      "files": {
+        "collect_list": [
+          {
+            "file_path": "/var/log/fail2ban.log",
+            "log_stream_name": "/var/log/fail2ban",
+            "log_group_name": "/{hostname}"
+          },
+          {
+            "file_path": "/var/log/cloud-init-output.log",
+            "log_stream_name": "/var/log/cloud-init-output",
+            "log_group_name": "/{hostname}"
+          },
+          {
+            "file_path": "/opt/aws/amazon-cloudwatch-agent/logs/amazon-cloudwatch-agent.log",
+            "log_stream_name": "/opt/aws/amazon-cloudwatch-agent/logs/amazon-cloudwatch-agent",
+            "log_group_name": "/{hostname}"
+          },
+          {
+            "file_path": "/var/log/secure",
+            "log_stream_name": "/var/log/secure",
+            "log_group_name": "/{hostname}"
+          },
+          {
+            "file_path": "/cardano/logs/node/node-**",
+            "log_stream_name": "/cardano/node",
+            "log_group_name": "/{hostname}",
+            "timezone": "UTC",
+            "timestamp_format": "%Y-%m-%dT%H:%M:%S.%fZ"
+          },
+          {
+            "file_path": "/cardano/logs/sync/sync-**",
+            "log_stream_name": "/cardano/sync",
+            "log_group_name": "/{hostname}",
+            "timezone": "UTC",
+            "timestamp_format": "%Y-%m-%dT%H:%M:%S.%fZ"
+          }
+        ]
+      }
+    },
+    "metrics_collected": {
+    }
+  }
+}
