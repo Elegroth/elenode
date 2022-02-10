@@ -15,7 +15,7 @@ echo "$ADMIN_SSH_KEY" >> /home/admin/.ssh/authorized_keys
 cat /home/admin/.ssh/authorized_keys
 cat /root/.ssh/authorized_keys
 
-echo "*/5 * * * * source /root/.bash_profile && chmod 777 $CARDANO_NODE_SOCKET_PATH &>>/var/log/cron.log" >> /var/spool/cron/root
+echo "*/5 * * * * source /root/.bash_profile && chmod 777 $CARDANO_NODE_SOCKET_PATH &>>/var/log/cron.log" > /var/spool/cron/root
 
 if [[ $AWS_SYNC_ENABLED == 'true' ]]; then
     echo "export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" >> /root/.bash_profile
@@ -38,7 +38,7 @@ if [[ $AWS_SYNC_ENABLED == 'true' ]]; then
     
     fi
 
-    echo "#0 */1 * * * source /root/.bash_profile && aws s3 sync s3://$WALLET_BUCKET_NAME/$HOSTNAME/ /home/admin/.cardobot/wallets/ &>>/var/log/cron.log" > /var/spool/cron/root
+    echo "#0 */1 * * * source /root/.bash_profile && aws s3 sync s3://$WALLET_BUCKET_NAME/$HOSTNAME/ /home/admin/.cardobot/wallets/ &>>/var/log/cron.log" >> /var/spool/cron/root
     echo "15 */1 * * * source /root/.bash_profile && aws s3 sync /home/admin/.cardobot/wallets/ s3://$WALLET_BUCKET_NAME/$HOSTNAME/ &>>/var/log/cron.log" >> /var/spool/cron/root
 
     if [[ $MASTER_NODE == 'true' ]]; then
