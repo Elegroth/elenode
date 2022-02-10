@@ -2,6 +2,22 @@
 
 This docker image has the ability to automatically sync up and down a backup of the Cardano DB. For now just through an S3 bucket, but looking into using the official weekly backups from IOHK.
 
+## Install:
+
+Install Docker to get started:
+
+https://docs.docker.com/get-started/
+
+
+```
+docker pull elegroth/elenode:0.2.0
+docker run -d elegroth/elenode:0.2.0
+```
+
+You can find the compiled image on Docker Hub:
+
+https://hub.docker.com/r/elegroth/elenode
+
 ## Components:
 
 - ssh daemon
