@@ -10,8 +10,8 @@ https://docs.docker.com/get-started/
 
 
 ```
-docker pull elegroth/elenode:0.2.0
-docker run -d elegroth/elenode:0.2.0
+docker pull elegroth/elenode:0.2.1
+docker run -d elegroth/elenode:0.2.1
 ```
 
 You can find the compiled image on Docker Hub:
