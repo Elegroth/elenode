@@ -43,9 +43,10 @@ if [[ $AWS_SYNC_ENABLED == 'true' ]]; then
 
     if [[ $MASTER_NODE == 'true' ]]; then
         if [[ $EFS_ENABLED == 'true' ]]; then
-            echo "0 0 * * * source /root/.bash_profile && aws s3 sync /cardano/db/$HOSTNAME/ s3://$DB_BUCKET_NAME/ --delete --exclude 'ledger/*' &>>/var/log/cron.log" >> /var/spool/cron/root
+            echo "0 0 * * * source /root/.bash_profile && aws s3 sync /cardano/db/$HOSTNAME/ s3://$DB_BUCKET_NAME/ --delete &>>/var/log/cron.log" >> /var/spool/cron/root
+            echo "0 15 * * * source /root/.bash_profile && rm -rf /cardano/db/source/ && mkdir /cardano/db/source/ && cp -R /cardano/db/$HOSTNAME/* /cardano/db/source/ &>>/var/log/cron.log" >> /var/spool/cron/root
         else
-            echo "0 0 * * * source /root/.bash_profile && aws s3 sync /cardano/db/ s3://$DB_BUCKET_NAME/ --delete --exclude 'ledger/*' &>>/var/log/cron.log" >> /var/spool/cron/root
+            echo "0 0 * * * source /root/.bash_profile && aws s3 sync /cardano/db/ s3://$DB_BUCKET_NAME/ --delete &>>/var/log/cron.log" >> /var/spool/cron/root
         fi
     fi
 fi
@@ -73,7 +74,7 @@ if [[ $DB_SYNC_ENABLED == 'true' ]]; then
     sed -i "s^username^${POSTGRES_USER}^g" /cardano/config/pgpass-mainnet
     sed -i "s^password^${POSTGRES_PASS}^g" /cardano/config/pgpass-mainnet
 
-    nohup bash -c '/cardano/scripts/start-db-sync.sh' &>>/var/log/dbsync.log
+    nohup bash -c '/cardano/scripts/start-db-sync.sh' >>/var/log/dbsync.log 2>&1 &
 
 fi
 
