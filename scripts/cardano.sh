@@ -8,10 +8,10 @@ set -e
 ## Cardano: https://hydra.iohk.io/job/Cardano/cardano-node/cardano-node-linux/latest/download/1
 ## DB-Sync: https://hydra.iohk.io/job/Cardano/cardano-db-sync/cardano-db-sync-linux/latest/download/1
 
-echo -e "\n-= Download latest cardano binares from https://hydra.iohk.io/build/9928700/download/1/cardano-node-1.32.1-linux.tar.gz =-"
+echo -e "\n-= Download latest cardano binares from https://hydra.iohk.io/build/8239657/download/1/cardano-node-1.31.0-linux.tar.gz =-"
 mkdir ${INSTALL_HOME}/setup/cardano -p
 cd ${INSTALL_HOME}/setup/cardano
-curl -L -o cardano.tar.gz https://hydra.iohk.io/build/9928700/download/1/cardano-node-1.32.1-linux.tar.gz
+curl -L -o cardano.tar.gz https://hydra.iohk.io/build/8239657/download/1/cardano-node-1.31.0-linux.tar.gz
 tar -xvf cardano.tar.gz --directory ${NODE_HOME}/scripts --exclude configuration
 
 echo -e "\n-= Download latest cardano-db-sync binares from https://hydra.iohk.io/build/12650290/download/1/cardano-db-sync-12.0.1-linux.tar.gz =-"
@@ -24,7 +24,6 @@ cd cardano-db-sync
 #git checkout 12.0.0
 cp ./config/${NODE_CONFIG}-config.yaml ${NODE_HOME}/config/db-sync-${NODE_CONFIG}-config.yaml
 cp ./schema/*.* ${NODE_HOME}/sync/schema
-rm -rf ${NODE_HOME}/sync/schema/migration-2-0009-20220207.sql
 
 echo -e "\n-= Download Configuration Files =-"
 # NODE_BUILD_NUM=$(curl --silent https://hydra.iohk.io/job/Cardano/iohk-nix/cardano-deployment/latest-finished/download/1/index.html | grep -e "build" | sed 's/.*build\/\([0-9]*\)\/download.*/\1/g')
