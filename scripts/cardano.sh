@@ -24,6 +24,7 @@ cd cardano-db-sync
 #git checkout 12.0.0
 cp ./config/${NODE_CONFIG}-config.yaml ${NODE_HOME}/config/db-sync-${NODE_CONFIG}-config.yaml
 cp ./schema/*.* ${NODE_HOME}/sync/schema
+rm -rf ${NODE_HOME}/sync/schema/migration-2-0009-20220207.sql
 
 echo -e "\n-= Download Configuration Files =-"
 # NODE_BUILD_NUM=$(curl --silent https://hydra.iohk.io/job/Cardano/iohk-nix/cardano-deployment/latest-finished/download/1/index.html | grep -e "build" | sed 's/.*build\/\([0-9]*\)\/download.*/\1/g')
