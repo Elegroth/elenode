@@ -10,7 +10,7 @@ RUN mkdir -p /home/ec2-user/setup
 COPY ./scripts/ /home/ec2-user/setup/
 RUN chmod -R +x /home/ec2-user/setup/*.sh
 
-ENV NODE_CONFIG=mainnet
+ENV NODE_CONFIG=testnet
 ENV NODE_HOME=/cardano
 ENV INSTALL_HOME=/home/ec2-user/
 ENV USERNAME=cardano
