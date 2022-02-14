@@ -28,13 +28,27 @@ if [[ $AWS_SYNC_ENABLED == 'true' ]]; then
     
     if [[ $EFS_ENABLED == 'true' ]]; then
 
-        mkdir /cardano/db/$HOSTNAME/
-        cp -R /cardano/db/source/* /cardano/db/$HOSTNAME/
-        sed -i "s^/cardano/db^/cardano/db/$HOSTNAME^g" /cardano/scripts/.env 
+        if [[ $TESTNET_ENABLED == 'true' ]]; then
+
+            mkdir /cardano/db/$HOSTNAME/
+            cp -R /cardano/db/testnet/* /cardano/db/$HOSTNAME/
+            sed -i "s^/cardano/db^/cardano/db/$HOSTNAME^g" /cardano/scripts/.env 
+
+        else
+
+            mkdir /cardano/db/$HOSTNAME/
+            cp -R /cardano/db/source/* /cardano/db/$HOSTNAME/
+            sed -i "s^/cardano/db^/cardano/db/$HOSTNAME^g" /cardano/scripts/.env 
+
+        fi
 
     else
 
-        aws s3 sync s3://$DB_BUCKET_NAME/ /cardano/db/
+        if [[ $REMOTE_URL_SYNC == 'true' ]]; then
+            continue
+        else
+            aws s3 sync s3://$DB_BUCKET_NAME/ /cardano/db/
+        fi
     
     fi
 
@@ -43,12 +57,25 @@ if [[ $AWS_SYNC_ENABLED == 'true' ]]; then
 
     if [[ $MASTER_NODE == 'true' ]]; then
         if [[ $EFS_ENABLED == 'true' ]]; then
-            echo "0 0 * * * source /root/.bash_profile && aws s3 sync /cardano/db/$HOSTNAME/ s3://$DB_BUCKET_NAME/ --delete &>>/var/log/cron.log" >> /var/spool/cron/root
-            echo "0 15 * * * source /root/.bash_profile && rm -rf /cardano/db/source/ && mkdir /cardano/db/source/ && cp -R /cardano/db/$HOSTNAME/* /cardano/db/source/ &>>/var/log/cron.log" >> /var/spool/cron/root
+            if [[ $TESTNET_ENABLED == 'true' ]]; then
+                echo "0 0 * * * source /root/.bash_profile && aws s3 sync /cardano/db/$HOSTNAME/ s3://$DB_BUCKET_NAME/testnet/ --delete &>>/var/log/cron.log" >> /var/spool/cron/root
+                echo "0 15 * * * source /root/.bash_profile && rm -rf /cardano/db/testnet/ && mkdir /cardano/db/testnet/ && cp -R /cardano/db/$HOSTNAME/* /cardano/db/testnet/ &>>/var/log/cron.log" >> /var/spool/cron/root
+            else
+                echo "0 0 * * * source /root/.bash_profile && aws s3 sync /cardano/db/$HOSTNAME/ s3://$DB_BUCKET_NAME/ --delete &>>/var/log/cron.log" >> /var/spool/cron/root
+                echo "0 15 * * * source /root/.bash_profile && rm -rf /cardano/db/source/ && mkdir /cardano/db/source/ && cp -R /cardano/db/$HOSTNAME/* /cardano/db/source/ &>>/var/log/cron.log" >> /var/spool/cron/root
+            fi
         else
             echo "0 0 * * * source /root/.bash_profile && aws s3 sync /cardano/db/ s3://$DB_BUCKET_NAME/ --delete &>>/var/log/cron.log" >> /var/spool/cron/root
         fi
     fi
+fi
+
+if [[ $REMOTE_URL_SYNC == 'true' ]]; then
+
+    wget $REMOTE_DB_URL ./
+    tar -xvf ${INSTALL_HOME}/setup/scripts/db/db_archive_1.32.1.tar.gz --directory ${NODE_HOME}/db/
+    rm -rf ${INSTALL_HOME}/setup/scripts/db/db_archive_1.32.1.tar.gz
+
 fi
 
 nohup crond >>/var/log/cron.log 2>&1 &
@@ -61,7 +88,7 @@ if [[ $DB_SYNC_ENABLED == 'true' ]]; then
     if [[ $RESTORE_DB_SYNC_SNAPSHOT == 'true' ]]; then
 
         echo -e "\n-= Download most recent cardano-db-sync snapshot"
-        sudo curl -L -o cardano-snapshot.tgz https://update-cardano-mainnet.iohk.io/cardano-db-sync/12/db-sync-snapshot-schema-12-block-6793499-x86_64.tgz
+        sudo curl -L -o cardano-snapshot.tgz https://update-cardano-mainnet.iohk.io/cardano-db-sync/12/db-sync-snapshot-schema-12-block-6850499-x86_64.tgz
         tar -xvf cardano-snapshot.tgz --directory /cardano/snapshots --exclude configuration
         rm -rf cardano-snapshot.tgz
 
