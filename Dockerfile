@@ -5,7 +5,7 @@ EXPOSE 3333
 EXPOSE 6000
 EXPOSE 8090
 
-RUN mkdir -p /home/ec2-user/setup/
+RUN mkdir -p /home/ec2-user/setup
 
 COPY ./scripts/ /home/ec2-user/setup/
 RUN chmod -R +x /home/ec2-user/setup/*.sh

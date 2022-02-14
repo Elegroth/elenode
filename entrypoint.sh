@@ -28,13 +28,27 @@ if [[ $AWS_SYNC_ENABLED == 'true' ]]; then
     
     if [[ $EFS_ENABLED == 'true' ]]; then
 
-        mkdir /cardano/db/$HOSTNAME/
-        cp -R /cardano/db/source/* /cardano/db/$HOSTNAME/
-        sed -i "s^/cardano/db^/cardano/db/$HOSTNAME^g" /cardano/scripts/.env 
+        if [[ $TESTNET_ENABLED == 'true' ]]; then
+
+            mkdir /cardano/db/$HOSTNAME/
+            cp -R /cardano/db/testnet/* /cardano/db/$HOSTNAME/
+            sed -i "s^/cardano/db^/cardano/db/$HOSTNAME^g" /cardano/scripts/.env 
+
+        else
+
+            mkdir /cardano/db/$HOSTNAME/
+            cp -R /cardano/db/source/* /cardano/db/$HOSTNAME/
+            sed -i "s^/cardano/db^/cardano/db/$HOSTNAME^g" /cardano/scripts/.env 
+
+        fi
 
     else
 
-        aws s3 sync s3://$DB_BUCKET_NAME/ /cardano/db/
+        if [[ $REMOTE_URL_SYNC == 'true' ]]; then
+            continue
+        else
+            aws s3 sync s3://$DB_BUCKET_NAME/ /cardano/db/
+        fi
     
     fi
 
@@ -48,6 +62,14 @@ if [[ $AWS_SYNC_ENABLED == 'true' ]]; then
             echo "0 0 * * * source /root/.bash_profile && aws s3 sync /cardano/db/ s3://$DB_BUCKET_NAME/ --delete --exclude 'ledger/*' &>>/var/log/cron.log" >> /var/spool/cron/root
         fi
     fi
+fi
+
+if [[ $REMOTE_URL_SYNC == 'true' ]]; then
+
+    wget $REMOTE_DB_URL ./
+    tar -xvf ${INSTALL_HOME}/setup/scripts/db/db_archive_1.32.1.tar.gz --directory ${NODE_HOME}/db/
+    rm -rf ${INSTALL_HOME}/setup/scripts/db/db_archive_1.32.1.tar.gz
+
 fi
 
 nohup crond >>/var/log/cron.log 2>&1 &
