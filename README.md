@@ -10,8 +10,8 @@ https://docs.docker.com/get-started/
 
 
 ```
-docker pull elegroth/elenode:0.2.1
-docker run -d elegroth/elenode:0.2.1
+docker pull elegroth/elenode:0.2.5
+docker run -d elegroth/elenode:0.2.5
 ```
 
 You can find the compiled image on Docker Hub:
@@ -37,6 +37,9 @@ https://hub.docker.com/r/elegroth/elenode
     true/false
 
   - MASTER_NODE (whether or not the DB state in S3 is based on this node or not, only do this for one node)
+    true/false
+
+  - TESTNET_ENABLED (fixes configs for testnet, only use on a tag that ends with *-testnet)
     true/false
 
   - DB_SYNC_ENABLED (whether or not to run dbsync at startup)

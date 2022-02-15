@@ -34,6 +34,9 @@ if [[ $AWS_SYNC_ENABLED == 'true' ]]; then
             cp -R /cardano/db/testnet/* /cardano/db/$HOSTNAME/
             sed -i "s^/cardano/db^/cardano/db/$HOSTNAME^g" /cardano/scripts/.env 
 
+            echo "export TESTNET_ENABLED=true" >> /root/.bash_profile
+            echo "export TESTNET_ENABLED=true" >> /home/admin/.bash_profile
+
         else
 
             mkdir /cardano/db/$HOSTNAME/
@@ -73,8 +76,8 @@ fi
 if [[ $REMOTE_URL_SYNC == 'true' ]]; then
 
     wget $REMOTE_DB_URL ./
-    tar -xvf ${INSTALL_HOME}/setup/scripts/db/db_archive_1.32.1.tar.gz --directory ${NODE_HOME}/db/
-    rm -rf ${INSTALL_HOME}/setup/scripts/db/db_archive_1.32.1.tar.gz
+    tar -xvf ./db_archive_1.32.1.tar.gz --directory ${NODE_HOME}/db/
+    rm -rf ./db_archive_1.32.1.tar.gz
 
 fi
 
