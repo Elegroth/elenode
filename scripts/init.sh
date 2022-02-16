@@ -5,7 +5,7 @@ echo -e "\n-= Update existing packages =-"
 yum install sudo coreutils -y
 sudo yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 sudo yum update -y
-sudo yum install -y jq moreutils git python3 passwd gettext tar ssh bc which socat cronie awscli s3fs-fuse nfs-utils postgresql
+sudo yum install -y jq moreutils git python3 passwd gettext tar ssh bc which socat cronie awscli s3fs-fuse nfs-utils postgresql wget
 sudo -H pip3 install yq 
 
 echo -e "\n-= Create ${USERNAME} user account"

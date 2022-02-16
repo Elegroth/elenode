@@ -10,8 +10,8 @@ https://docs.docker.com/get-started/
 
 
 ```
-docker pull elegroth/elenode:0.2.1
-docker run -d elegroth/elenode:0.2.1
+docker pull elegroth/elenode:0.3.0
+docker run -d elegroth/elenode:0.3.0
 ```
 
 You can find the compiled image on Docker Hub:
@@ -32,14 +32,23 @@ https://hub.docker.com/r/elegroth/elenode
 ```
   - AWS_SYNC_ENABLED (whether or not to sync DB and wallets to S3)
     true/false
+  
+  - REMOTE_URL_SYNC (sync from a direct download link for a db archive instead of S3)
+    true/false
+
+  - REMOTE_DB_URL (URL to the DB archive, must be a direct download link)
+    string
     
   - EFS_ENABLED (Whether or not to utilize a mounted EFS volume, mainly for use with ECS or EKS)
     true/false
 
-  - MASTER_NODE (whether or not the DB state in S3 is based on this node or not, only do this for one node)
+  - MASTER_NODE (your master node to sync the db from and that will be running dbsync)
     true/false
 
-  - DB_SYNC_ENABLED (whether or not to run dbsync at startup)
+  - TESTNET_ENABLED (fixes configs for testnet, only use on a tag that ends with *-testnet)
+    true/false
+
+  - DB_SYNC_ENABLED (whether or not to setup configs to use dbsync and run at startup if it's the master)
     true/false
 
   - RESTORE_DB_SYNC_SNAPSHOT (whether or not to download the latest DB sync snapshot from IOHK)
