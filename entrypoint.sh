@@ -111,6 +111,7 @@ if [[ $DB_SYNC_ENABLED == 'true' ]]; then
             rm -rf cardano-snapshot.tgz
             
             db_snap_name=$(ls /cardano/snapshots/db*)
+            mkdir -p /cardano/sync/ledger-state/mainnet
 
             PGPASSFILE=/cardano/config/pgpass-mainnet /cardano/scripts/postgresql-setup.sh --restore-snapshot \
 	            ${db_snap_name} /cardano/sync/ledger-state/mainnet
