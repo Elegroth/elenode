@@ -55,6 +55,7 @@ cat ${NODE_HOME}/scripts/start-relay.sh
 echo -e "\n-= Create Db-Sync Startup Script =-"
 envsubst '${NODE_HOME}' < ${INSTALL_HOME}/setup/scripts/start-db-sync.sh > ${INSTALL_HOME}/setup/scripts/start-db-sync.tmp
 mv ${INSTALL_HOME}/setup/scripts/start-db-sync.tmp ${NODE_HOME}/scripts/start-db-sync.sh
+mv ${INSTALL_HOME}/setup/scripts/postgres-setup.sh ${NODE_HOME}/scripts/postgres-setup.sh
 cat ${NODE_HOME}/scripts/start-db-sync.sh
 
 echo -e "\n-= Mark ${NODE_HOME}/scripts/*.sh as executable =-"

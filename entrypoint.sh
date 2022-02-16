@@ -94,6 +94,13 @@ nohup cardano-submit-api --mainnet --socket-path $CARDANO_NODE_SOCKET_PATH --con
 
 if [[ $DB_SYNC_ENABLED == 'true' ]]; then
 
+    echo -e "\n-= Updating Postgres DB Files =-"
+    sed -i "s^hostname^${POSTGRES_HOST}^g" /cardano/config/pgpass-mainnet
+    sed -i "s^port^${POSTGRES_PORT}^g" /cardano/config/pgpass-mainnet
+    sed -i "s^database^${POSTGRES_DB}^g" /cardano/config/pgpass-mainnet
+    sed -i "s^username^${POSTGRES_USER}^g" /cardano/config/pgpass-mainnet
+    sed -i "s^password^${POSTGRES_PASS}^g" /cardano/config/pgpass-mainnet
+
     if [[ $MASTER_NODE == 'true' ]]; then
 
         if [[ $RESTORE_DB_SYNC_SNAPSHOT == 'true' ]]; then
@@ -102,17 +109,17 @@ if [[ $DB_SYNC_ENABLED == 'true' ]]; then
             curl -L -o cardano-snapshot.tgz https://update-cardano-mainnet.iohk.io/cardano-db-sync/12/db-sync-snapshot-schema-12-block-6850499-x86_64.tgz
             tar -xvf cardano-snapshot.tgz --directory /cardano/snapshots --exclude configuration
             rm -rf cardano-snapshot.tgz
+            
+            db_snap_name=$(ls /cardano/snapshots/db*)
+
+            PGPASSFILE=/cardano/config/pgpass-mainnet /cardano/scripts/postgresql-setup.sh --restore-snapshot \
+	            ${db_snap_name} /cardano/sync/ledger-state/mainnet
+
+            rm -rf ${db_snap_name}
 
         fi
 
     fi
-
-    echo -e "\n-= Updating Postgres DB Files =-"
-    sed -i "s^hostname^${POSTGRES_HOST}^g" /cardano/config/pgpass-mainnet
-    sed -i "s^port^${POSTGRES_PORT}^g" /cardano/config/pgpass-mainnet
-    sed -i "s^database^${POSTGRES_DB}^g" /cardano/config/pgpass-mainnet
-    sed -i "s^username^${POSTGRES_USER}^g" /cardano/config/pgpass-mainnet
-    sed -i "s^password^${POSTGRES_PASS}^g" /cardano/config/pgpass-mainnet
 
     if [[ $MASTER_NODE == 'true' ]]; then
 
