@@ -48,7 +48,11 @@ if [[ $AWS_SYNC_ENABLED == 'true' ]]; then
     else
 
         if [[ ! $REMOTE_URL_SYNC == 'true' ]]; then
-            aws s3 sync s3://$DB_BUCKET_NAME/ /cardano/db/
+            if [[ $TESTNET_ENABLED == 'true' ]]; then
+                aws s3 sync s3://$DB_BUCKET_NAME/testnet/ /cardano/db/
+            else
+                aws s3 sync s3://$DB_BUCKET_NAME/ /cardano/db/
+            fi
         fi
     
     fi
@@ -66,7 +70,11 @@ if [[ $AWS_SYNC_ENABLED == 'true' ]]; then
                 echo "0 15 * * * source /root/.bash_profile && rm -rf /cardano/db/source/ && mkdir /cardano/db/source/ && cp -R /cardano/db/$HOSTNAME/* /cardano/db/source/ &>>/var/log/cron.log" >> /var/spool/cron/root
             fi
         else
-            echo "0 0 * * * source /root/.bash_profile && aws s3 sync /cardano/db/ s3://$DB_BUCKET_NAME/ --delete &>>/var/log/cron.log" >> /var/spool/cron/root
+            if [[ $TESTNET_ENABLED == 'true' ]]; then
+                echo "0 0 * * * source /root/.bash_profile && aws s3 sync /cardano/db/ s3://$DB_BUCKET_NAME/testnet/ --delete &>>/var/log/cron.log" >> /var/spool/cron/root
+            else
+                echo "0 0 * * * source /root/.bash_profile && aws s3 sync /cardano/db/ s3://$DB_BUCKET_NAME/ --delete &>>/var/log/cron.log" >> /var/spool/cron/root
+            fi
         fi
     fi
 fi
