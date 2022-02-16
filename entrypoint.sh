@@ -75,9 +75,9 @@ fi
 
 if [[ $REMOTE_URL_SYNC == 'true' ]]; then
 
-    wget $REMOTE_DB_URL ./
-    tar -xvf ./db_archive_1.32.1.tar.gz --directory ${NODE_HOME}/db/
-    rm -rf ./db_archive_1.32.1.tar.gz
+    curl -L -o $REMOTE_DB_URL ./db_archive.tar.gz
+    tar -xvf ./db_archive.tar.gz --directory ${NODE_HOME}/db/
+    rm -rf ./db_archive.tar.gz
 
 fi
 
@@ -88,12 +88,16 @@ nohup cardano-submit-api --mainnet --socket-path $CARDANO_NODE_SOCKET_PATH --con
 
 if [[ $DB_SYNC_ENABLED == 'true' ]]; then
 
-    if [[ $RESTORE_DB_SYNC_SNAPSHOT == 'true' ]]; then
+    if [[ $MASTER_NODE == 'true' ]]; then
 
-        echo -e "\n-= Download most recent cardano-db-sync snapshot"
-        sudo curl -L -o cardano-snapshot.tgz https://update-cardano-mainnet.iohk.io/cardano-db-sync/12/db-sync-snapshot-schema-12-block-6850499-x86_64.tgz
-        tar -xvf cardano-snapshot.tgz --directory /cardano/snapshots --exclude configuration
-        rm -rf cardano-snapshot.tgz
+        if [[ $RESTORE_DB_SYNC_SNAPSHOT == 'true' ]]; then
+
+            echo -e "\n-= Download most recent cardano-db-sync snapshot"
+            curl -L -o cardano-snapshot.tgz https://update-cardano-mainnet.iohk.io/cardano-db-sync/12/db-sync-snapshot-schema-12-block-6850499-x86_64.tgz
+            tar -xvf cardano-snapshot.tgz --directory /cardano/snapshots --exclude configuration
+            rm -rf cardano-snapshot.tgz
+
+        fi
 
     fi
 
@@ -104,7 +108,14 @@ if [[ $DB_SYNC_ENABLED == 'true' ]]; then
     sed -i "s^username^${POSTGRES_USER}^g" /cardano/config/pgpass-mainnet
     sed -i "s^password^${POSTGRES_PASS}^g" /cardano/config/pgpass-mainnet
 
-    nohup bash -c '/cardano/scripts/start-db-sync.sh' >>/var/log/dbsync.log 2>&1 &
+    if [[ $MASTER_NODE == 'true' ]]; then
+
+        nohup bash -c '/cardano/scripts/start-db-sync.sh' >>/var/log/dbsync.log 2>&1 &
+
+    fi
+
+    echo "export DB_SYNC_ENABLED=true" >> /root/.bash_profile
+    echo "export DB_SYNC_ENABLED=true" >> /home/admin/.bash_profile
 
 fi
 
