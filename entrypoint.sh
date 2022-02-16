@@ -47,9 +47,7 @@ if [[ $AWS_SYNC_ENABLED == 'true' ]]; then
 
     else
 
-        if [[ $REMOTE_URL_SYNC == 'true' ]]; then
-            continue
-        else
+        if [[ ! $REMOTE_URL_SYNC == 'true' ]]; then
             aws s3 sync s3://$DB_BUCKET_NAME/ /cardano/db/
         fi
     
@@ -75,7 +73,7 @@ fi
 
 if [[ $REMOTE_URL_SYNC == 'true' ]]; then
 
-    curl -L -o $REMOTE_DB_URL ./db_archive.tar.gz
+    curl -L -o ./db_archive.tar.gz $REMOTE_DB_URL
     tar -xvf ./db_archive.tar.gz --directory ${NODE_HOME}/db/
     rm -rf ./db_archive.tar.gz
 
