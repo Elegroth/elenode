@@ -18,6 +18,7 @@ cat /root/.ssh/authorized_keys
 echo "*/5 * * * * source /root/.bash_profile && chmod 777 $CARDANO_NODE_SOCKET_PATH &>>/var/log/cron.log" > /var/spool/cron/root
 
 if [[ $AWS_SYNC_ENABLED == 'true' ]]; then
+
     echo "export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" >> /root/.bash_profile
     echo "export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" >> /root/.bash_profile
     echo "export AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION" >> /root/.bash_profile
@@ -87,10 +88,15 @@ if [[ $REMOTE_URL_SYNC == 'true' ]]; then
 
 fi
 
-nohup crond >>/var/log/cron.log 2>&1 &
 nohup /usr/sbin/sshd -D -o ListenAddress=0.0.0.0 -p 22 >>/var/log/sshd.log 2>&1 &
-nohup socat TCP-LISTEN:3333,fork,reuseaddr, UNIX-CONNECT:$CARDANO_NODE_SOCKET_PATH >>/var/log/socat.log 2>&1 &
-nohup cardano-submit-api --mainnet --socket-path $CARDANO_NODE_SOCKET_PATH --config /cardano/config/tx-submit-mainnet-config.yaml --port 8090 --listen-address 0.0.0.0 &
+
+if [[ ! $ONLY_DB_SYNC == 'true' ]]; then
+    nohup crond >>/var/log/cron.log 2>&1 &
+    nohup socat TCP-LISTEN:3333,fork,reuseaddr, UNIX-CONNECT:$CARDANO_NODE_SOCKET_PATH >>/var/log/socat.log 2>&1 &
+    nohup cardano-submit-api --mainnet --socket-path $CARDANO_NODE_SOCKET_PATH --config /cardano/config/tx-submit-mainnet-config.yaml --port 8090 --listen-address 0.0.0.0 &
+elif [[ $ONLY_DB_SYNC == 'true' ]]; then
+    nohup socat UNIX-LISTEN:$CARDANO_NODE_SOCKET_PATH,fork,reuseaddr,unlink-early, TCP:dbnode:3333 >>/var/log/socat.log 2>&1 &
+fi
 
 if [[ $DB_SYNC_ENABLED == 'true' ]]; then
 
@@ -109,21 +115,25 @@ if [[ $DB_SYNC_ENABLED == 'true' ]]; then
     chown root /root/.pgpass
     chmod 600 /root/.pgpass
 
-    if [[ $MASTER_NODE == 'true' ]]; then
+    if [[ ! $SEPARATE_DB_SYNC == 'true' ]]; then
 
-        if [[ $RESTORE_DB_SYNC_SNAPSHOT == 'true' ]]; then
+        if [[ $MASTER_NODE == 'true' ]]; then
 
-            echo -e "\n-= Download most recent cardano-db-sync snapshot"
-            curl -L -o cardano-snapshot.tgz https://update-cardano-mainnet.iohk.io/cardano-db-sync/12/db-sync-snapshot-schema-12-block-6850499-x86_64.tgz
-            tar -xvf cardano-snapshot.tgz --directory /cardano/snapshots --exclude configuration
-            rm -rf cardano-snapshot.tgz
-            
-            db_snap_name=$(ls /cardano/snapshots/db*)
-            mkdir -p /cardano/sync/ledger-state/mainnet
+            if [[ $RESTORE_DB_SYNC_SNAPSHOT == 'true' ]]; then
 
-            PGPASSFILE=/cardano/config/pgpass-mainnet /cardano/scripts/postgresql-setup.sh --restore-snapshot ${db_snap_name} /cardano/sync/ledger-state/mainnet
+                echo -e "\n-= Download most recent cardano-db-sync snapshot"
+                curl -L -o cardano-snapshot.tgz https://update-cardano-mainnet.iohk.io/cardano-db-sync/12/db-sync-snapshot-schema-12-block-6850499-x86_64.tgz
+                tar -xvf cardano-snapshot.tgz --directory /cardano/snapshots --exclude configuration
+                rm -rf cardano-snapshot.tgz
+                
+                db_snap_name=$(ls /cardano/snapshots/db*)
+                mkdir -p /cardano/sync/ledger-state/mainnet
 
-            rm -rf ${db_snap_name}
+                PGPASSFILE=/cardano/config/pgpass-mainnet /cardano/scripts/postgresql-setup.sh --restore-snapshot ${db_snap_name} /cardano/sync/ledger-state/mainnet
+
+                rm -rf ${db_snap_name}
+
+            fi
 
         fi
 
@@ -131,7 +141,15 @@ if [[ $DB_SYNC_ENABLED == 'true' ]]; then
 
     if [[ $MASTER_NODE == 'true' ]]; then
 
-        nohup bash -c '/cardano/scripts/start-db-sync.sh' >>/var/log/dbsync.log 2>&1 &
+        if [[ ! $SEPARATE_DB_SYNC == 'true' ]]; then
+
+            if [[ ! $ONLY_DB_SYNC == 'true' ]]; then
+
+                nohup bash -c '/cardano/scripts/start-db-sync.sh' >>/var/log/dbsync.log 2>&1 &
+
+            fi
+
+        fi
 
     fi
 
@@ -143,4 +161,12 @@ fi
 cd /home/admin/cardobot && git pull && ./INSTALL && cd ~/
 chown admin -R /home/admin/.cardobot/wallets/
 
-bash -c '/cardano/scripts/start-relay.sh'
+if [[ $ONLY_DB_SYNC == 'true' ]]; then
+
+    bash -c '/cardano/scripts/start-db-sync.sh'
+
+else
+
+    bash -c '/cardano/scripts/start-relay.sh'
+
+fi
