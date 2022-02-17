@@ -4,8 +4,17 @@ set -e
 echo -e "\n-= Update existing packages =-"
 yum install sudo coreutils -y
 sudo yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+
+sudo tee /etc/yum.repos.d/pgdg.repo<<EOF
+[pgdg13]
+name=PostgreSQL 13 for RHEL/CentOS 7 - x86_64
+baseurl=http://download.postgresql.org/pub/repos/yum/13/redhat/rhel-7-x86_64
+enabled=1
+gpgcheck=0
+EOF
+
 sudo yum update -y
-sudo yum install -y jq moreutils git python3 passwd gettext tar ssh bc which socat cronie awscli s3fs-fuse nfs-utils postgresql wget
+sudo yum install -y jq moreutils git python3 passwd gettext tar ssh bc which socat cronie awscli nfs-utils postgresql13 wget
 sudo -H pip3 install yq 
 
 echo -e "\n-= Create ${USERNAME} user account"
