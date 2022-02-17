@@ -27,33 +27,37 @@ if [[ $AWS_SYNC_ENABLED == 'true' ]]; then
     echo "export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" >> /home/admin/.bash_profile
     echo "export AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION" >> /home/admin/.bash_profile
     
-    if [[ $EFS_ENABLED == 'true' ]]; then
+    if [[ ! $ONLY_DB_SYNC == 'true' ]]; then
 
-        if [[ $TESTNET_ENABLED == 'true' ]]; then
+        if [[ $EFS_ENABLED == 'true' ]]; then
 
-            mkdir /cardano/db/$HOSTNAME/
-            cp -R /cardano/db/testnet/* /cardano/db/$HOSTNAME/
-            sed -i "s^/cardano/db^/cardano/db/$HOSTNAME^g" /cardano/scripts/.env 
+            if [[ $TESTNET_ENABLED == 'true' ]]; then
 
-            echo "export TESTNET_ENABLED=true" >> /root/.bash_profile
-            echo "export TESTNET_ENABLED=true" >> /home/admin/.bash_profile
+                mkdir /cardano/db/$HOSTNAME/
+                cp -R /cardano/db/testnet/* /cardano/db/$HOSTNAME/
+                sed -i "s^/cardano/db^/cardano/db/$HOSTNAME^g" /cardano/scripts/.env 
+
+                echo "export TESTNET_ENABLED=true" >> /root/.bash_profile
+                echo "export TESTNET_ENABLED=true" >> /home/admin/.bash_profile
+
+            else
+
+                mkdir /cardano/db/$HOSTNAME/
+                cp -R /cardano/db/source/* /cardano/db/$HOSTNAME/
+                sed -i "s^/cardano/db^/cardano/db/$HOSTNAME^g" /cardano/scripts/.env 
+
+            fi
 
         else
 
-            mkdir /cardano/db/$HOSTNAME/
-            cp -R /cardano/db/source/* /cardano/db/$HOSTNAME/
-            sed -i "s^/cardano/db^/cardano/db/$HOSTNAME^g" /cardano/scripts/.env 
-
-        fi
-
-    else
-
-        if [[ ! $REMOTE_URL_SYNC == 'true' ]]; then
-            if [[ $TESTNET_ENABLED == 'true' ]]; then
-                aws s3 sync s3://$DB_BUCKET_NAME/testnet/ /cardano/db/
-            else
-                aws s3 sync s3://$DB_BUCKET_NAME/ /cardano/db/
+            if [[ ! $REMOTE_URL_SYNC == 'true' ]]; then
+                if [[ $TESTNET_ENABLED == 'true' ]]; then
+                    aws s3 sync s3://$DB_BUCKET_NAME/testnet/ /cardano/db/
+                else
+                    aws s3 sync s3://$DB_BUCKET_NAME/ /cardano/db/
+                fi
             fi
+        
         fi
     
     fi
@@ -61,30 +65,36 @@ if [[ $AWS_SYNC_ENABLED == 'true' ]]; then
     echo "#0 */1 * * * source /root/.bash_profile && aws s3 sync s3://$WALLET_BUCKET_NAME/$HOSTNAME/ /home/admin/.cardobot/wallets/ &>>/var/log/cron.log" >> /var/spool/cron/root
     echo "15 */1 * * * source /root/.bash_profile && aws s3 sync /home/admin/.cardobot/wallets/ s3://$WALLET_BUCKET_NAME/$HOSTNAME/ &>>/var/log/cron.log" >> /var/spool/cron/root
 
-    if [[ $MASTER_NODE == 'true' ]]; then
-        if [[ $EFS_ENABLED == 'true' ]]; then
-            if [[ $TESTNET_ENABLED == 'true' ]]; then
-                echo "0 0 * * * source /root/.bash_profile && aws s3 sync /cardano/db/$HOSTNAME/ s3://$DB_BUCKET_NAME/testnet/ --delete &>>/var/log/cron.log" >> /var/spool/cron/root
-                echo "0 15 * * * source /root/.bash_profile && rm -rf /cardano/db/testnet/ && mkdir /cardano/db/testnet/ && cp -R /cardano/db/$HOSTNAME/* /cardano/db/testnet/ &>>/var/log/cron.log" >> /var/spool/cron/root
+    if [[ ! $ONLY_DB_SYNC == 'true' ]]; then
+        if [[ $MASTER_NODE == 'true' ]]; then
+            if [[ $EFS_ENABLED == 'true' ]]; then
+                if [[ $TESTNET_ENABLED == 'true' ]]; then
+                    echo "0 0 * * * source /root/.bash_profile && aws s3 sync /cardano/db/$HOSTNAME/ s3://$DB_BUCKET_NAME/testnet/ --delete &>>/var/log/cron.log" >> /var/spool/cron/root
+                    echo "0 15 * * * source /root/.bash_profile && rm -rf /cardano/db/testnet/ && mkdir /cardano/db/testnet/ && cp -R /cardano/db/$HOSTNAME/* /cardano/db/testnet/ &>>/var/log/cron.log" >> /var/spool/cron/root
+                else
+                    echo "0 0 * * * source /root/.bash_profile && aws s3 sync /cardano/db/$HOSTNAME/ s3://$DB_BUCKET_NAME/ --delete &>>/var/log/cron.log" >> /var/spool/cron/root
+                    echo "0 15 * * * source /root/.bash_profile && rm -rf /cardano/db/source/ && mkdir /cardano/db/source/ && cp -R /cardano/db/$HOSTNAME/* /cardano/db/source/ &>>/var/log/cron.log" >> /var/spool/cron/root
+                fi
             else
-                echo "0 0 * * * source /root/.bash_profile && aws s3 sync /cardano/db/$HOSTNAME/ s3://$DB_BUCKET_NAME/ --delete &>>/var/log/cron.log" >> /var/spool/cron/root
-                echo "0 15 * * * source /root/.bash_profile && rm -rf /cardano/db/source/ && mkdir /cardano/db/source/ && cp -R /cardano/db/$HOSTNAME/* /cardano/db/source/ &>>/var/log/cron.log" >> /var/spool/cron/root
-            fi
-        else
-            if [[ $TESTNET_ENABLED == 'true' ]]; then
-                echo "0 0 * * * source /root/.bash_profile && aws s3 sync /cardano/db/ s3://$DB_BUCKET_NAME/testnet/ --delete &>>/var/log/cron.log" >> /var/spool/cron/root
-            else
-                echo "0 0 * * * source /root/.bash_profile && aws s3 sync /cardano/db/ s3://$DB_BUCKET_NAME/ --delete &>>/var/log/cron.log" >> /var/spool/cron/root
+                if [[ $TESTNET_ENABLED == 'true' ]]; then
+                    echo "0 0 * * * source /root/.bash_profile && aws s3 sync /cardano/db/ s3://$DB_BUCKET_NAME/testnet/ --delete &>>/var/log/cron.log" >> /var/spool/cron/root
+                else
+                    echo "0 0 * * * source /root/.bash_profile && aws s3 sync /cardano/db/ s3://$DB_BUCKET_NAME/ --delete &>>/var/log/cron.log" >> /var/spool/cron/root
+                fi
             fi
         fi
     fi
 fi
 
-if [[ $REMOTE_URL_SYNC == 'true' ]]; then
+if [[ ! $ONLY_DB_SYNC == 'true' ]]; then
 
-    curl -L -o ./db_archive.tar.gz $REMOTE_DB_URL
-    tar -xvf ./db_archive.tar.gz --directory ${NODE_HOME}/db/
-    rm -rf ./db_archive.tar.gz
+    if [[ $REMOTE_URL_SYNC == 'true' ]]; then
+
+        curl -L -o ./db_archive.tar.gz $REMOTE_DB_URL
+        tar -xvf ./db_archive.tar.gz --directory ${NODE_HOME}/db/
+        rm -rf ./db_archive.tar.gz
+
+    fi
 
 fi
 
@@ -95,7 +105,7 @@ if [[ ! $ONLY_DB_SYNC == 'true' ]]; then
     nohup socat TCP-LISTEN:3333,fork,reuseaddr, UNIX-CONNECT:$CARDANO_NODE_SOCKET_PATH >>/var/log/socat.log 2>&1 &
     nohup cardano-submit-api --mainnet --socket-path $CARDANO_NODE_SOCKET_PATH --config /cardano/config/tx-submit-mainnet-config.yaml --port 8090 --listen-address 0.0.0.0 &
 elif [[ $ONLY_DB_SYNC == 'true' ]]; then
-    nohup socat UNIX-LISTEN:$CARDANO_NODE_SOCKET_PATH,fork,reuseaddr,unlink-early, TCP:dbnode:3333 >>/var/log/socat.log 2>&1 &
+    nohup socat UNIX-LISTEN:$CARDANO_NODE_SOCKET_PATH,fork,reuseaddr,unlink-early, TCP:$REMOTE_NODE_ENDPOINT:3333 >>/var/log/socat.log 2>&1 &
 fi
 
 if [[ $DB_SYNC_ENABLED == 'true' ]]; then
