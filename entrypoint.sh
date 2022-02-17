@@ -101,6 +101,14 @@ if [[ $DB_SYNC_ENABLED == 'true' ]]; then
     sed -i "s^username^${POSTGRES_USER}^g" /cardano/config/pgpass-mainnet
     sed -i "s^password^${POSTGRES_PASS}^g" /cardano/config/pgpass-mainnet
 
+    cp /cardano/config/pgpass-mainnet /home/admin/.pgpass
+    chown admin /home/admin/.pgpass
+    chmod 600 /home/admin/.pgpass
+
+    cp /cardano/config/pgpass-mainnet /root/.pgpass
+    chown root /root/.pgpass
+    chmod 600 /root/.pgpass
+
     if [[ $MASTER_NODE == 'true' ]]; then
 
         if [[ $RESTORE_DB_SYNC_SNAPSHOT == 'true' ]]; then
