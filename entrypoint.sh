@@ -105,7 +105,9 @@ if [[ ! $ONLY_DB_SYNC == 'true' ]]; then
     nohup socat TCP-LISTEN:3333,fork,reuseaddr, UNIX-CONNECT:$CARDANO_NODE_SOCKET_PATH >>/var/log/socat.log 2>&1 &
     nohup cardano-submit-api --mainnet --socket-path $CARDANO_NODE_SOCKET_PATH --config /cardano/config/tx-submit-mainnet-config.yaml --port 8090 --listen-address 0.0.0.0 &
 elif [[ $ONLY_DB_SYNC == 'true' ]]; then
-    nohup socat UNIX-LISTEN:$CARDANO_NODE_SOCKET_PATH,fork,reuseaddr,unlink-early, TCP:$REMOTE_NODE_ENDPOINT:3333 >>/var/log/socat.log 2>&1 &
+    nohup crond >>/var/log/cron.log 2>&1 &
+    nohup socat UNIX-LISTEN:$CARDANO_NODE_SOCKET_PATH,fork,reuseaddr,unlink-early, TCP:$REMOTE_NODE_ENDPOINT >>/var/log/socat.log 2>&1 &
+    nohup cardano-submit-api --mainnet --socket-path $CARDANO_NODE_SOCKET_PATH --config /cardano/config/tx-submit-mainnet-config.yaml --port 8090 --listen-address 0.0.0.0 &
 fi
 
 if [[ $DB_SYNC_ENABLED == 'true' ]]; then
