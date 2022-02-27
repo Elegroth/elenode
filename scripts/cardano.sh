@@ -8,10 +8,10 @@ set -e
 ## Cardano: https://hydra.iohk.io/job/Cardano/cardano-node/cardano-node-linux/latest/download/1
 ## DB-Sync: https://hydra.iohk.io/job/Cardano/cardano-db-sync/cardano-db-sync-linux/latest/download/1
 
-echo -e "\n-= Download latest cardano binares from https://hydra.iohk.io/build/11958434/download/1/cardano-node-1.33.1-linux.tar.gz =-"
+echo -e "\n-= Download latest cardano binares from https://hydra.iohk.io/build/13010359/download/1/cardano-node-1.33.0-linux.tar.gz =-"
 mkdir ${INSTALL_HOME}/setup/cardano -p
 cd ${INSTALL_HOME}/setup/cardano
-curl -L -o cardano.tar.gz https://hydra.iohk.io/build/11958434/download/1/cardano-node-1.33.1-linux.tar.gz
+curl -L -o cardano.tar.gz https://hydra.iohk.io/build/13010359/download/1/cardano-node-1.33.0-linux.tar.gz
 tar -xvf cardano.tar.gz --directory ${NODE_HOME}/scripts --exclude configuration
 
 echo -e "\n-= Download latest cardano-db-sync binares from https://hydra.iohk.io/build/12591418/download/1/cardano-db-sync-12.0.2-linux.tar.gz =-"
