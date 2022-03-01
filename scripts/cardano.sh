@@ -21,7 +21,6 @@ tar -xvf cardano-db-sync.tar.gz --directory ${NODE_HOME}/scripts --exclude confi
 echo -e "\n-= Clone cardano-db-sync repository to get latest configuration and schema =-"
 git clone https://github.com/input-output-hk/cardano-db-sync.git
 cd cardano-db-sync
-git checkout 12.0.1
 cp ./config/${NODE_CONFIG}-config.yaml ${NODE_HOME}/config/db-sync-${NODE_CONFIG}-config.yaml
 cp ./schema/*.* ${NODE_HOME}/sync/schema
 
