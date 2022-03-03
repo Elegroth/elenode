@@ -17,6 +17,12 @@ sudo yum update -y
 sudo yum install -y jq moreutils git python3 passwd gettext tar ssh bc which socat cronie awscli nfs-utils postgresql13 wget
 sudo -H pip3 install yq 
 
+echo -e "\n= Seup NIX environment"
+sudo install -d -m755 -o $(id -u) -g $(id -g) /nix
+curl -L https://nixos.org/nix/install | sh
+source $HOME/.nix-profile/etc/profile.d/nix.sh
+echo -e "source $HOME/.nix-profile/etc/profile.d/nix.sh" >> ~/.bash_profile
+
 echo -e "\n-= Create ${USERNAME} user account"
 sudo adduser ${USERNAME} -m -s /bin/bash
 sudo passwd -d ${USERNAME}
