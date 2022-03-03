@@ -18,12 +18,18 @@ tar -xvf cardano.tar.gz --directory ${NODE_HOME}/scripts --exclude configuration
 #curl -L -o cardano-db-sync.tar.gz https://hydra.iohk.io/build/13011421/download/1/cardano-db-sync-12.0.1-linux.tar.gz
 #tar -xvf cardano-db-sync.tar.gz --directory ${NODE_HOME}/scripts --exclude configuration
 
+echo -e "\n-= Copy over cardano-db-sync binary =-"
+cp ${INSTALL_HOME}/setup/scripts/cardano-db-sync ${NODE_HOME}/scripts/
+
 echo -e "\n-= Clone cardano-db-sync repository to get latest configuration and schema =-"
 git clone https://github.com/input-output-hk/cardano-db-sync.git
 cd cardano-db-sync
 git checkout 12.0.2
-nix-build -A cardano-db-sync -o db-sync-node
-cp ./db-sync-node/bin/cardano-db-sync ${NODE_HOME}/scripts
+#cabal init
+#cabal update
+#cabal build cardano-db-sync
+#CARDANO_DBS_LOCATION=$(find . -name cardano-db-sync -executable -type f)
+#cp ${CARDANO_DBS_LOCATION} ${NODE_HOME}/scripts
 cp ./config/${NODE_CONFIG}-config.yaml ${NODE_HOME}/config/db-sync-${NODE_CONFIG}-config.yaml
 cp ./schema/*.* ${NODE_HOME}/sync/schema
 
@@ -62,6 +68,7 @@ cat ${NODE_HOME}/scripts/start-db-sync.sh
 
 echo -e "\n-= Mark ${NODE_HOME}/scripts/*.sh as executable =-"
 chmod -R +x ${NODE_HOME}/scripts/*.sh
+chmod -R +x ${NODE_HOME}/scripts/*
 
 echo -e "\n-= Symlinking scripts in ${NODE_HOME}/scripts/ =-"
 sudo ln -sfL ${NODE_HOME}/scripts/* /usr/local/bin/
