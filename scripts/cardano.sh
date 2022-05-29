@@ -22,11 +22,6 @@ echo -e "\n-= Clone cardano-db-sync repository to get latest configuration and s
 git clone https://github.com/input-output-hk/cardano-db-sync.git
 cd cardano-db-sync
 git checkout 12.0.2
-cabal init
-cabal update
-cabal build cardano-db-sync
-CARDANO_DBS_LOCATION=$(find . -name cardano-db-sync -executable -type f)
-cp ${CARDANO_DBS_LOCATION} ${NODE_HOME}/scripts
 cp ./config/${NODE_CONFIG}-config.yaml ${NODE_HOME}/config/db-sync-${NODE_CONFIG}-config.yaml
 cp ./schema/*.* ${NODE_HOME}/sync/schema
 
