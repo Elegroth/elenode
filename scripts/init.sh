@@ -14,14 +14,8 @@ gpgcheck=0
 EOF
 
 sudo yum update -y
-sudo yum install -y jq moreutils git python3 passwd gettext tar ssh bc which socat cronie awscli nfs-utils postgresql13 wget xz pkg-config libpq-dev
+sudo yum install -y jq moreutils git python3 passwd gettext tar ssh bc which socat cronie awscli nfs-utils postgresql13 wget xz pkg-config libpq-dev time nc
 sudo -H pip3 install yq 
-
-curl --proto '=https' --tlsv1.2 -sSf https://get-ghcup.haskell.org | sh
-#echo -e "\n= Seup NIX environment"
-#sh <(curl -L https://nixos.org/nix/install) --daemon
-#source /etc/profile.d/nix.sh
-#echo -e "source /etc/profile.d/nix.sh" >> ~/.bash_profile
 
 echo -e "\n-= Create ${USERNAME} user account"
 sudo adduser ${USERNAME} -m -s /bin/bash
