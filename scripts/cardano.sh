@@ -8,26 +8,26 @@ set -e
 ## Cardano: https://hydra.iohk.io/job/Cardano/cardano-node/cardano-node-linux/latest/download/1
 ## DB-Sync: https://hydra.iohk.io/job/Cardano/cardano-db-sync/cardano-db-sync-linux/latest/download/1
 
-echo -e "\n-= Download latest cardano binares from https://hydra.iohk.io/build/13065769/download/1/cardano-node-1.34.1-linux.tar.gz =-"
+echo -e "\n-= Download latest cardano binares from https://hydra.iohk.io/build/17428084/download/1/cardano-node-1.35.3-linux.tar.gz =-"
 mkdir ${INSTALL_HOME}/setup/cardano -p
 cd ${INSTALL_HOME}/setup/cardano
-curl -L -o cardano.tar.gz https://hydra.iohk.io/build/13065769/download/1/cardano-node-1.34.1-linux.tar.gz
+curl -L -o cardano.tar.gz https://hydra.iohk.io/build/17428084/download/1/cardano-node-1.35.3-linux.tar.gz
 tar -xvf cardano.tar.gz --directory ${NODE_HOME}/scripts --exclude configuration
 
-echo -e "\n-= Download latest cardano-db-sync binares from https://hydra.iohk.io/build/12591418/download/1/cardano-db-sync-12.0.2-linux.tar.gz =-"
-curl -L -o cardano-db-sync.tar.gz https://hydra.iohk.io/build/12591418/download/1/cardano-db-sync-12.0.2-linux.tar.gz
+echo -e "\n-= Download latest cardano-db-sync binares from https://hydra.iohk.io/build/19105782/download/1/cardano-db-sync-13.0.5-linux.tar.gz =-"
+curl -L -o cardano-db-sync.tar.gz https://hydra.iohk.io/build/19105782/download/1/cardano-db-sync-13.0.5-linux.tar.gz
 tar -xvf cardano-db-sync.tar.gz --directory ${NODE_HOME}/scripts --exclude configuration
 
 echo -e "\n-= Clone cardano-db-sync repository to get latest configuration and schema =-"
 git clone https://github.com/input-output-hk/cardano-db-sync.git
 cd cardano-db-sync
-git checkout 12.0.2
+git checkout 13.0.5
 cp ./config/${NODE_CONFIG}-config.yaml ${NODE_HOME}/config/db-sync-${NODE_CONFIG}-config.yaml
 cp ./schema/*.* ${NODE_HOME}/sync/schema
 
 echo -e "\n-= Download Configuration Files =-"
 # NODE_BUILD_NUM=$(curl --silent https://hydra.iohk.io/job/Cardano/iohk-nix/cardano-deployment/latest-finished/download/1/index.html | grep -e "build" | sed 's/.*build\/\([0-9]*\)\/download.*/\1/g')
-DOWNLOAD_URL=https://hydra.iohk.io/build/7654130/download/1
+DOWNLOAD_URL=https://hydra.iohk.io/build/13695229/download/1
 
 cd ${NODE_HOME}/config
 curl -O ${DOWNLOAD_URL}/${NODE_CONFIG}-byron-genesis.json \
@@ -56,6 +56,7 @@ echo -e "\n-= Create Db-Sync Startup Script =-"
 envsubst '${NODE_HOME}' < ${INSTALL_HOME}/setup/scripts/start-db-sync.sh > ${INSTALL_HOME}/setup/scripts/start-db-sync.tmp
 mv ${INSTALL_HOME}/setup/scripts/start-db-sync.tmp ${NODE_HOME}/scripts/start-db-sync.sh
 mv ${INSTALL_HOME}/setup/scripts/postgresql-setup.sh ${NODE_HOME}/scripts/postgresql-setup.sh
+mv ${INSTALL_HOME}/setup/scripts/checkLatency.sh ${NODE_HOME}/scripts/checkLatency.sh
 cat ${NODE_HOME}/scripts/start-db-sync.sh
 
 echo -e "\n-= Mark ${NODE_HOME}/scripts/*.sh as executable =-"
